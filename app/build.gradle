@@ -1,0 +1,86 @@
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+    id 'kotlin-kapt'
+    id 'com.google.dagger.hilt.android'
+}
+
+android {
+    namespace 'com.renju.albums'
+    compileSdk 33
+
+    defaultConfig {
+        applicationId "com.renju.albums"
+        minSdk 21
+        targetSdk 33
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+
+    buildFeatures {
+        compose true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.4.0"
+    }
+
+
+}
+
+dependencies {
+
+    implementation libraries.appcompat
+    implementation libraries.material
+    implementation libraries.composeUi
+    implementation libraries.composeMaterial
+    implementation libraries.composePreview
+    implementation libraries.composeViewModel
+    implementation libraries.composeActivity
+    implementation libraries.coil
+    testImplementation unitTestLibraries.junit
+    debugImplementation libraries.composeTooling
+
+    //Dagger - Hilt
+    implementation libraries.hiltAndroid
+    kapt libraries.hiltCompiler
+    kapt libraries.hiltDagger
+
+    //Room
+    implementation libraries.roomRuntime
+    kapt libraries.roomCompiler
+    implementation libraries.roomktx
+
+
+    // Retrofit
+    implementation libraries.retrofit
+    implementation libraries.retrofitGsonConverter
+    implementation libraries.okhttpLoggingInterceptor
+
+    testImplementation unitTestLibraries.kotlinMockito
+    testImplementation unitTestLibraries.coroutinesTest
+
+
+    androidTestImplementation instrumentationTestLibraries.hiltTesting
+    androidTestImplementation unitTestLibraries.mockito
+    testImplementation unitTestLibraries.mockito
+    testImplementation unitTestLibraries.assertj
+    testImplementation unitTestLibraries.coreTesting
+    testImplementation unitTestLibraries.truth
+}
