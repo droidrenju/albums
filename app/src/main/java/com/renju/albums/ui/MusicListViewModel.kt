@@ -1,5 +1,6 @@
 package com.renju.albums.ui
 
+import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -9,6 +10,7 @@ import com.renju.albums.domain.model.MusicDetails
 import com.renju.albums.domain.usecase.MusicUseCase
 import com.renju.albums.domain.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
@@ -22,8 +24,14 @@ class MusicListViewModel @Inject constructor(
 
     internal var state by mutableStateOf(MusicListState())
     internal var musicList: List<MusicDetails> = emptyList()
+    internal var refreshing by mutableStateOf(false)
 
-    fun fetchMusicList() {
+    init {
+        fetchMusicList()
+    }
+
+    @VisibleForTesting
+    internal fun fetchMusicList() {
         viewModelScope.launch {
             state = state.copy(
                 isLoading = true,
@@ -33,7 +41,6 @@ class MusicListViewModel @Inject constructor(
                 .flowOn(Dispatchers.IO)
                 .catch { e ->
                     state = state.copy(
-                        musicDetailsList = null,
                         isLoading = false,
                         error = e.message
                     )
@@ -55,15 +62,34 @@ class MusicListViewModel @Inject constructor(
                                 error = it.message
                             )
                         }
-                        else -> {
-                            state = state.copy(
-                                musicDetailsList = null,
-                                isLoading = false,
-                                error = "Unexpected Error"
-                            )
+                        is Resource.Loading -> {
+                            state = state.copy(isLoading = true)
                         }
                     }
                 }
+        }
+    }
+
+
+    fun refreshData() {
+        CoroutineScope(Dispatchers.IO).launch {
+            refreshing = true
+            musicUseCase.refreshMusicDetails()
+                .collect {
+                    if (it is Resource.Success) {
+                        state = state.copy(
+                            musicDetailsList = it.data,
+                            error = null
+                        )
+                    } else if (it is Resource.Error) {
+                        state = state.copy(
+                            musicDetailsList = null,
+                            isLoading = false,
+                            error = it.message
+                        )
+                    }
+                }
+            refreshing = false
         }
     }
 

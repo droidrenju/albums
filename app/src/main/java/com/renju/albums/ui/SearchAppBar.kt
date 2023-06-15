@@ -11,7 +11,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
+import com.renju.albums.R
 
 @Composable
 fun SearchAppBar(
@@ -52,7 +54,7 @@ fun SearchAppBar(
         },
         maxLines = 1,
         colors = TextFieldDefaults.textFieldColors(backgroundColor = Color.Transparent),
-        placeholder = { Text(text = "Search Here") },
+        placeholder = { Text(text = stringResource(R.string.search_here)) },
         textStyle = MaterialTheme.typography.subtitle1,
         singleLine = true,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),

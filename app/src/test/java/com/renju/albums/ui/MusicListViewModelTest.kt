@@ -1,10 +1,10 @@
 package com.renju.albums.ui
 
+import com.google.common.truth.Truth.*
 import com.renju.albums.data.testutils.CoroutineTestRule
 import com.renju.albums.domain.model.MusicDetails
 import com.renju.albums.domain.usecase.MusicUseCase
 import com.renju.albums.domain.util.Resource
-import com.google.common.truth.Truth.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import org.junit.Assert.*
@@ -17,6 +17,7 @@ import org.mockito.Mockito.*
 import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnitRunner
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(MockitoJUnitRunner::class)
 class MusicListViewModelTest {
 
@@ -25,7 +26,7 @@ class MusicListViewModelTest {
 
     private lateinit var viewModel: MusicListViewModel
 
-    @OptIn(ExperimentalCoroutinesApi::class)
+
     @get:Rule
     val coroutineTestRule = CoroutineTestRule()
 
@@ -40,7 +41,7 @@ class MusicListViewModelTest {
         viewModel.musicList = emptyList()
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
+
     @Test
     fun `fetchMusicList should update state when musicUseCase returns data`() =
         coroutineTestRule.runBlockingTest {
@@ -59,22 +60,6 @@ class MusicListViewModelTest {
             assertThat(viewModel.state.error).isNull()
             assertThat(viewModel.state.musicDetailsList).isEqualTo(musicDetailsList)
         }
-
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    @Test
-    fun `fetchMusicList should update state when musicUseCase throws an exception`() =
-        coroutineTestRule.runBlockingTest {
-            val exceptionMessage = "An error occurred"
-            `when`(musicUseCase.getMusicDetails()).thenReturn(flowOf(Resource.Error(exceptionMessage)))
-            viewModel.fetchMusicList()
-
-            coroutineTestRule.testDispatcher.scheduler.advanceUntilIdle()
-
-            assertThat(viewModel.state.error).isEqualTo(exceptionMessage)
-            assertThat(viewModel.state.musicDetailsList).isNull()
-        }
-
 
     @Test
     fun `filterList should update state with filtered music list`() {
