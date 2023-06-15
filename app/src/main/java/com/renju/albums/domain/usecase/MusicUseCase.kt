@@ -12,4 +12,8 @@ class MusicUseCase @Inject constructor(
     suspend fun getMusicDetails(): Flow<Resource<List<MusicDetails>>> {
         return musicRepository.getMusicList()
     }
+
+    suspend fun refreshMusicDetails(): Flow<Resource<List<MusicDetails>>> {
+        return musicRepository.refreshMusicDetails()
+    }
 }

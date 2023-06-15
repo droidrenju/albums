@@ -20,8 +20,10 @@ import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.kotlin.verifyNoInteractions
 import retrofit2.Response
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(MockitoJUnitRunner::class)
 class MusicRepositoryImplTest {
 
@@ -43,7 +45,6 @@ class MusicRepositoryImplTest {
 
     private lateinit var repository: MusicRepositoryImpl
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @get:Rule
     val coroutineTestRule = CoroutineTestRule()
 
@@ -55,7 +56,7 @@ class MusicRepositoryImplTest {
     }
 
 
-    @OptIn(ExperimentalCoroutinesApi::class)
+
     @Test
     fun `getMusicList emits loading and success when data is not available locally`() =
         coroutineTestRule.runBlockingTest {
@@ -83,7 +84,6 @@ class MusicRepositoryImplTest {
 
         }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `getMusicList emits loading and error when error response received`() =
         coroutineTestRule.runBlockingTest {
@@ -102,7 +102,6 @@ class MusicRepositoryImplTest {
 
         }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `getMusicList emits loading and success when data is available locally`() =
         coroutineTestRule.runBlockingTest {
@@ -124,9 +123,47 @@ class MusicRepositoryImplTest {
 
             val flow = repository.getMusicList().toList()
 
-            assertEquals(3, flow.size)
+            assertEquals(2, flow.size)
             assertTrue(flow[0] is Resource.Loading)
             assertTrue(flow[1] is Resource.Success)
             assertEquals(mappedData, (flow[1] as Resource.Success<List<MusicDetails>>).data)
+            verifyNoInteractions(itunesService)
+        }
+
+
+    @Test
+    fun `refreshMusicList emits data when network response is success`() =
+        coroutineTestRule.runBlockingTest {
+
+            `when`(itunesService.getTopMusicAlbums()).thenReturn(response)
+            `when`(response.isSuccessful).thenReturn(true)
+            `when`(response.body()).thenReturn(musicEntity)
+
+
+            val mappedData = listOf(
+                MusicDetails("music1", "url1", "title1", "price1", "artist1"),
+                MusicDetails("music2", "url2", "title2", "price2", "artist2"),
+                MusicDetails("music3", "url2", "title3", "price3", "artist3"),
+            )
+            `when`(mapper.mapToMusicDetailsFromNetwork(musicEntity)).thenReturn(mappedData)
+
+            val flow = repository.refreshMusicDetails().toList()
+
+            assertEquals(1, flow.size)
+            assertTrue(flow[0] is Resource.Success)
+            assertEquals(mappedData, (flow[0] as Resource.Success<List<MusicDetails>>).data)
+        }
+
+    @Test
+    fun `refreshMusicList should not emit data when network response is failure`() =
+        coroutineTestRule.runBlockingTest {
+            `when`(itunesService.getTopMusicAlbums()).thenReturn(response)
+            `when`(response.isSuccessful).thenReturn(false)
+
+            val flow = repository.refreshMusicDetails().toList()
+
+            assertEquals(1, flow.size)
+            assertTrue(flow[0] is Resource.Error)
+            verifyNoInteractions(mapper)
         }
 }
