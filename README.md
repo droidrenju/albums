@@ -52,7 +52,7 @@ they have the reference through observables.
   of the box.
 - [Gson](https://github.com/google/gson) - A Java serialization/deserialization library to convert
   Java Objects into JSON and back.
-- [Coil](https://github.com/bumptech/glide) - An image loading and caching library for Android
+- [Coil](https://coil-kt.github.io/coil/compose/) - An image loading and caching library for Android
   focused on smooth scrolling
 - [Dagger-Hilt](https://developer.android.com/training/dependency-injection/hilt-android) -
   Lightweight dependency injection library for android.
